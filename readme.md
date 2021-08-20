@@ -2,7 +2,7 @@
 
 ## _Mark and save your workouts on the map_
 
-[Find it here](https://www.example.com)
+[Find it here](https://fancy-mapty.netlify.app/)
 
 ## Features
 
