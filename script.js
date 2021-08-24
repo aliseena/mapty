@@ -7,7 +7,7 @@ const form = document.querySelector('.form'),
   inputCadence = document.querySelector('.form__input--cadence'),
   inputElevation = document.querySelector('.form__input--elevation'),
   removeBtn = document.querySelector('.close'),
-  locationMessage = document.querySelector('.location__warning'),
+  message = document.querySelector('.location__warning'),
   clearAll = document.querySelector('.clearWorkouts'),
   sortBtn = document.querySelector('.sortWorkouts'),
   displayButton = document.querySelector('.display__button'),
@@ -89,9 +89,11 @@ class App {
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
         function () {
-          locationMessage.style.transform = 'translateY(0)';
+          message.innerHTML = "<h2>We couldn't access your location </h2>";
+          message.style.transform = 'translateY(0)';
           setTimeout(() => {
-            locationMessage.style.transform = 'translateY(-10rem)';
+            message.innerHTML = '';
+            message.style.transform = 'translateY(-10rem)';
           }, 2000);
         }
       );
@@ -155,22 +157,20 @@ class App {
   }
 
   async _newWorkout(e) {
+    e.preventDefault();
     // validate data
     const validInputs = (...inputs) =>
       inputs.every(inp => Number.isFinite(inp));
     const positiveNumbers = (...inputs) => inputs.every(inp => inp > 0);
-    e.preventDefault();
-
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
     const { lat, lng } = this.#mapEvent.latlng;
     // region setup
-
     const countryData = await this.getCountry();
     this.primaryCity = countryData.city;
     this.primaryCountry = countryData.country;
-
+    // render workout after 1,5 sec. it's because of the API (only 1 request/sec)
     setTimeout(() => {
       let workout;
       // if workout is cycling, create cycling object
@@ -213,15 +213,15 @@ class App {
       this._renderMarker(workout);
       // render workout
       this._renderWorkout(workout);
-      // hide form
-      this._hideForm();
       // set to local storage
       this._setToLocalStorage();
+      // hide form
+      this._hideForm();
       // button display
       this._setDisplay();
       //set bounds
       this._setBounds();
-    }, 2000);
+    }, 1500);
   }
 
   _renderMarker(workout) {
@@ -352,25 +352,3 @@ class App {
   }
 }
 const app = new App();
-
-// const getPosition = function () {
-//   return new Promise(function (resolve, reject) {
-//     navigator.geolocation.getCurrentPosition(resolve, reject);
-//   });
-// };
-// async function getCountry() {
-//   try {
-//     const pos = await getPosition();
-//     const { latitude: lat, longitude: lng } = pos.coords;
-//     const resGeo = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
-//     const dataGeo = await resGeo.json();
-//     // return dataGeo;
-//     console.log(dataGeo);
-//   } catch (error) {
-//     console.log(`we have a problem with ${error}`);
-//   }
-// }
-// (async function () {
-//   const countryData = await getCountry();
-//   // console.log(countryData);
-// })();
